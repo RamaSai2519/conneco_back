@@ -2,12 +2,11 @@
 import { ResponseUtil } from "../utils/response.ts";
 import { HTTP_STATUS } from "../constants/index.ts";
 import { supabaseService } from "../services/supabase.ts";
-import { verifyToken, extractTokenFromHeader } from "../utils/auth.ts";
-import type { CreatePostRequest, CreatePostResponse, GetPostsResponse, Post, SearchPostsRequest, SearchPostsResponse, PostWithUser } from "../types/post.ts";
-import type { User } from "../types/auth.ts";
+import type { CreatePostRequest, CreatePostResponse, GetPostsResponse, SearchPostsRequest, SearchPostsResponse, PostWithUser } from "../types/post.ts";
+import type { AuthContext } from "../middleware/auth.ts";
 
 export class PostController {
-    static async createPost(req: Request): Promise<Response> {
+    static async createPost(req: Request, authContext: AuthContext): Promise<Response> {
         try {
             const body: CreatePostRequest = await req.json();
             console.log("🚀 ~ PostController ~ createPost ~ body:", body);
@@ -17,39 +16,10 @@ export class PostController {
                 return ResponseUtil.error("At least one of text or image_url is required", HTTP_STATUS.BAD_REQUEST);
             }
 
-            // Extract and verify JWT token
-            const authHeader = req.headers.get('authorization');
-            const token = extractTokenFromHeader(authHeader);
-
-            if (!token) {
-                return ResponseUtil.error("Authorization token is required", HTTP_STATUS.UNAUTHORIZED);
-            }
-
-            const payload = await verifyToken(token);
-            if (!payload) {
-                return ResponseUtil.error("Invalid or expired token", HTTP_STATUS.UNAUTHORIZED);
-            }
-
-            // Find user by password from JWT to ensure user still exists and password hasn't changed
-            const { data: users, error: userError } = await supabaseService.database
-                .from('users')
-                .select('*')
-                .eq('id', payload.userId)
-                .eq('pass', payload.userPass);
-
-            if (userError) {
-                console.error("Database error while finding user:", userError);
-                return ResponseUtil.error("Database error", HTTP_STATUS.INTERNAL_SERVER_ERROR);
-            }
-
-            if (!users || users.length === 0) {
-                return ResponseUtil.error("User not found or password changed", HTTP_STATUS.UNAUTHORIZED);
-            }
-
-            const user: User = users[0];
+            const user = authContext.user;
 
             // Create the post with only provided fields
-            const postData: any = {
+            const postData: Partial<CreatePostRequest> & { user_id: number } = {
                 user_id: user.id
             };
 
@@ -92,38 +62,9 @@ export class PostController {
         }
     }
 
-    static async getUserPosts(req: Request): Promise<Response> {
+    static async getUserPosts(_req: Request, authContext: AuthContext): Promise<Response> {
         try {
-            // Extract and verify JWT token
-            const authHeader = req.headers.get('authorization');
-            const token = extractTokenFromHeader(authHeader);
-
-            if (!token) {
-                return ResponseUtil.error("Authorization token is required", HTTP_STATUS.UNAUTHORIZED);
-            }
-
-            const payload = await verifyToken(token);
-            if (!payload) {
-                return ResponseUtil.error("Invalid or expired token", HTTP_STATUS.UNAUTHORIZED);
-            }
-
-            // Find user by password from JWT to ensure user still exists and password hasn't changed
-            const { data: users, error: userError } = await supabaseService.database
-                .from('users')
-                .select('*')
-                .eq('id', payload.userId)
-                .eq('pass', payload.userPass);
-
-            if (userError) {
-                console.error("Database error while finding user:", userError);
-                return ResponseUtil.error("Database error", HTTP_STATUS.INTERNAL_SERVER_ERROR);
-            }
-
-            if (!users || users.length === 0) {
-                return ResponseUtil.error("User not found or password changed", HTTP_STATUS.UNAUTHORIZED);
-            }
-
-            const user: User = users[0];
+            const user = authContext.user;
 
             // Get user's posts
             const { data: posts, error: postsError } = await supabaseService.database
@@ -148,37 +89,8 @@ export class PostController {
         }
     }
 
-    static async searchPostsByNames(req: Request): Promise<Response> {
+    static async searchPostsByNames(req: Request, _authContext: AuthContext): Promise<Response> {
         try {
-            // Extract and verify JWT token
-            const authHeader = req.headers.get('authorization');
-            const token = extractTokenFromHeader(authHeader);
-
-            if (!token) {
-                return ResponseUtil.error("Authorization token is required", HTTP_STATUS.UNAUTHORIZED);
-            }
-
-            const payload = await verifyToken(token);
-            if (!payload) {
-                return ResponseUtil.error("Invalid or expired token", HTTP_STATUS.UNAUTHORIZED);
-            }
-
-            // Verify user still exists (for token validation)
-            const { data: users, error: userError } = await supabaseService.database
-                .from('users')
-                .select('*')
-                .eq('id', payload.userId)
-                .eq('pass', payload.userPass);
-
-            if (userError) {
-                console.error("Database error while finding user:", userError);
-                return ResponseUtil.error("Database error", HTTP_STATUS.INTERNAL_SERVER_ERROR);
-            }
-
-            if (!users || users.length === 0) {
-                return ResponseUtil.error("User not found or password changed", HTTP_STATUS.UNAUTHORIZED);
-            }
-
             const body: SearchPostsRequest = await req.json();
             console.log("🚀 ~ PostController ~ searchPostsByNames ~ body:", body);
 
@@ -206,8 +118,7 @@ export class PostController {
             // First, get the total count for pagination
             const { count: totalCount, error: countError } = await supabaseService.database
                 .from('posts')
-                .select('*', { count: 'exact', head: true })
-                .inner('users', 'posts.user_id', 'users.id')
+                .select('*, users!inner(*)', { count: 'exact', head: true })
                 .in('users.name', cleanNames);
 
             if (countError) {
@@ -240,7 +151,20 @@ export class PostController {
             }
 
             // Transform the data to match our expected format
-            const posts: PostWithUser[] = (postsWithUsers || []).map(post => ({
+            interface PostWithUserData {
+                id: number;
+                user_id: number;
+                text: string;
+                image_url: string;
+                date: string | null;
+                created_at: string;
+                users: {
+                    id: number;
+                    name: string;
+                }[];
+            }
+
+            const posts: PostWithUser[] = (postsWithUsers || []).map((post: PostWithUserData) => ({
                 id: post.id,
                 user_id: post.user_id,
                 text: post.text,
@@ -248,8 +172,8 @@ export class PostController {
                 date: post.date,
                 created_at: post.created_at,
                 user: {
-                    id: post.users.id,
-                    name: post.users.name
+                    id: post.users[0].id,
+                    name: post.users[0].name
                 }
             }));
 

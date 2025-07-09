@@ -1,7 +1,7 @@
 // routes/router.ts
 import { AuthController } from "../controllers/auth.ts";
 import { PostController } from "../controllers/post.ts";
-import { authMiddleware, requireAuth } from "../middleware/auth.ts";
+import { authMiddleware } from "../middleware/auth.ts";
 import { ResponseUtil } from "../utils/response.ts";
 import { CorsUtil } from "../utils/cors.ts";
 import { ROUTES, HTTP_METHODS, HTTP_STATUS } from "../constants/index.ts";
@@ -35,19 +35,32 @@ export class Router {
             response = await AuthController.refresh(req);
         }
 
-        // Route: POST /server/posts/create
+        // Protected routes - require authentication
         else if (method === HTTP_METHODS.POST && path === ROUTES.POSTS.CREATE) {
-            response = await PostController.createPost(req);
+            const authResult = await authMiddleware(req);
+            if (authResult instanceof Response) {
+                response = authResult; // Auth failed, return error response
+            } else {
+                response = await PostController.createPost(req, authResult);
+            }
         }
 
-        // Route: GET /server/posts/user
         else if (method === HTTP_METHODS.GET && path === ROUTES.POSTS.GET_USER_POSTS) {
-            response = await PostController.getUserPosts(req);
+            const authResult = await authMiddleware(req);
+            if (authResult instanceof Response) {
+                response = authResult; // Auth failed, return error response
+            } else {
+                response = await PostController.getUserPosts(req, authResult);
+            }
         }
 
-        // Route: POST /server/posts/search
         else if (method === HTTP_METHODS.POST && path === ROUTES.POSTS.SEARCH_BY_NAMES) {
-            response = await PostController.searchPostsByNames(req);
+            const authResult = await authMiddleware(req);
+            if (authResult instanceof Response) {
+                response = authResult; // Auth failed, return error response
+            } else {
+                response = await PostController.searchPostsByNames(req, authResult);
+            }
         }
 
         // Default: Not Found

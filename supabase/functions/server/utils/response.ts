@@ -1,13 +1,14 @@
 // utils/response.ts
 import { HTTP_STATUS } from "../constants/index.ts";
 
-export interface StandardResponse<T = any> {
+export interface StandardResponse<T = unknown> {
+    success: boolean;
     data: T;
     error: string;
 }
 
 export class ResponseUtil {
-    static success<T = any>(data: T, status: number = HTTP_STATUS.OK): Response {
+    static success<T = unknown>(data: T, status: number = HTTP_STATUS.OK): Response {
         const response: StandardResponse<T> = {
             success: true,
             data,
@@ -19,7 +20,7 @@ export class ResponseUtil {
         });
     }
 
-    static error(error: string, status: number = HTTP_STATUS.INTERNAL_SERVER_ERROR, data: any = null): Response {
+    static error(error: string, status: number = HTTP_STATUS.INTERNAL_SERVER_ERROR, data: unknown = null): Response {
         const response: StandardResponse = {
             success: false,
             data,

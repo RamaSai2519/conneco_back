@@ -43,8 +43,14 @@ export async function verifyToken(token: string): Promise<JWTPayload | null> {
             return null;
         }
         const key = await getKey();
-        const payload = await verify(token, key, "HS256") as JWTPayload;
-        return payload;
+        const payload = await verify(token, key);
+
+        // Check if the payload has the expected structure
+        if (payload && typeof payload === 'object' && 'userId' in payload && 'userPass' in payload) {
+            return payload as unknown as JWTPayload;
+        }
+
+        return null;
     } catch (error) {
         console.error("❌ Error verifying token:", error);
         return null;
