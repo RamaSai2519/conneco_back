@@ -88,3 +88,19 @@ class JWTPayload:
             'user_pass': self.user_pass,
             'exp': self.exp
         }
+
+
+@dataclass
+class Output:
+    """Common response structure."""
+    success: bool
+    data: Optional[Dict[str, Any]] = None
+    error: Optional[str] = None
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary."""
+        return {
+            'success': self.success,
+            'data': self.data,
+            'error': self.error
+        }

@@ -1,7 +1,10 @@
 from flask import request
+from models.auth import Output
 from flask_restful import Resource
-from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, create_refresh_token
+from shared.models.common import Common
+
 from shared.db.users import get_user_by_password, create_user, get_user_by_id
+from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, create_refresh_token
 
 
 class AuthLoginService(Resource):
@@ -56,21 +59,23 @@ class AuthSignupService(Resource):
             user = create_user(name, password)
 
             # Create tokens
-            access_token = create_access_token(identity=user['_id'])
-            refresh_token = create_refresh_token(identity=user['_id'])
+            access_token = create_access_token(identity=str(user['_id']))
+            refresh_token = create_refresh_token(identity=str(user['_id']))
 
-            return {
+            value = Output(Common.jsonify({
                 'success': True,
                 'data': {
                     'access_token': access_token,
                     'refresh_token': refresh_token,
                     'user': {
-                        'id': str(user['_id']),
+                        'id': user['_id'],
                         'name': user['name'],
                         'created_at': user.get('created_at')
                     }
                 }
-            }, 201
+            })).to_dict(), 201
+            print(value)
+            return value
 
         except Exception as e:
             return {'success': False, 'error': str(e)}, 500

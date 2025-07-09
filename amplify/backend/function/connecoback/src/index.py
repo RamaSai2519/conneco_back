@@ -1,11 +1,14 @@
-import awsgi
-from flask_cors import CORS
-from flask_restful import Api
-from services.controller import *
-from flask import Flask, Response
-from flask_jwt_extended import JWTManager
-from shared.configs import CONFIG as config
 from shared.uniservices.after_request import Handler
+from shared.configs import CONFIG as config
+from flask_jwt_extended import JWTManager
+from flask import Flask, Response
+from services.controller import *
+from flask_restful import Api
+from flask_cors import CORS
+import awsgi
+import sys
+import os
+
 
 app = Flask(__name__)
 app.config['JWT_SECRET_KEY'] = config.JWT_SECRET_KEY
@@ -39,4 +42,4 @@ def handler(event, context) -> dict:
 
 
 if __name__ == '__main__':
-    app.run(port=8080)
+    app.run(port=8080, debug=True)
