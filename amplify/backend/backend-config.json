@@ -1,0 +1,43 @@
+{
+  "api": {
+    "apicon": {
+      "dependsOn": [
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "connecoback"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "API Gateway"
+    }
+  },
+  "function": {
+    "connecoback": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    }
+  },
+  "parameters": {
+    "AMPLIFY_function_connecoback_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "connecoback"
+        }
+      ]
+    },
+    "AMPLIFY_function_connecoback_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "connecoback"
+        }
+      ]
+    }
+  }
+}
