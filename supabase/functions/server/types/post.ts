@@ -1,15 +1,20 @@
 // types/post.ts
 export interface CreatePostRequest {
-    text?: string; // Optional but at least one of text or image_url is required
-    image_url?: string; // Optional but at least one of text or image_url is required
+    type: 'text' | 'image' | 'mixed'; // Type of post
+    content?: string; // Text content (optional but at least one of content or image_url is required)
+    caption?: string; // Caption for images or additional description
+    image_url?: string; // Optional but at least one of content or image_url is required
     date?: string; // Optional date field from frontend (ISO string format)
 }
 
 export interface Post {
     id: number;
+    type: 'text' | 'image' | 'mixed';
+    content: string | null;
+    caption: string | null;
     user_id: number;
-    text: string;
-    image_url: string;
+    user_name: string;
+    image_url: string | null;
     date: string | null; // Date field from frontend - nullable since it's optional
     created_at: string;
 }

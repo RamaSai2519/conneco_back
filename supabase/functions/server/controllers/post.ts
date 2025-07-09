@@ -2,7 +2,7 @@
 import { ResponseUtil } from "../utils/response.ts";
 import { HTTP_STATUS } from "../constants/index.ts";
 import { supabaseService } from "../services/supabase.ts";
-import type { CreatePostRequest, CreatePostResponse, GetPostsResponse, SearchPostsRequest, SearchPostsResponse, PostWithUser } from "../types/post.ts";
+import type { CreatePostRequest, CreatePostResponse, GetPostsResponse, SearchPostsRequest, SearchPostsResponse, PostWithUser, Post } from "../types/post.ts";
 import type { AuthContext } from "../middleware/auth.ts";
 
 export class PostController {
@@ -11,20 +11,31 @@ export class PostController {
             const body: CreatePostRequest = await req.json();
             console.log("🚀 ~ PostController ~ createPost ~ body:", body);
 
-            // Validate that at least one of text or image_url is provided
-            if ((!body.text || body.text.trim() === '') && (!body.image_url || body.image_url.trim() === '')) {
-                return ResponseUtil.error("At least one of text or image_url is required", HTTP_STATUS.BAD_REQUEST);
+            // Validate that at least one of content or image_url is provided
+            if ((!body.content || body.content.trim() === '') && (!body.image_url || body.image_url.trim() === '')) {
+                return ResponseUtil.error("At least one of content or image_url is required", HTTP_STATUS.BAD_REQUEST);
+            }
+
+            // Validate post type
+            if (!body.type || !['text', 'image', 'mixed'].includes(body.type)) {
+                return ResponseUtil.error("Valid post type is required (text, image, or mixed)", HTTP_STATUS.BAD_REQUEST);
             }
 
             const user = authContext.user;
 
             // Create the post with only provided fields
-            const postData: Partial<CreatePostRequest> & { user_id: number } = {
-                user_id: user.id
+            const postData: Partial<CreatePostRequest> & { user_id: number; user_name: string } = {
+                user_id: user.id,
+                user_name: user.name,
+                type: body.type
             };
 
-            if (body.text && body.text.trim() !== '') {
-                postData.text = body.text.trim();
+            if (body.content && body.content.trim() !== '') {
+                postData.content = body.content.trim();
+            }
+
+            if (body.caption && body.caption.trim() !== '') {
+                postData.caption = body.caption.trim();
             }
 
             if (body.image_url && body.image_url.trim() !== '') {
@@ -118,30 +129,19 @@ export class PostController {
             // First, get the total count for pagination
             const { count: totalCount, error: countError } = await supabaseService.database
                 .from('posts')
-                .select('*, users!inner(*)', { count: 'exact', head: true })
-                .in('users.name', cleanNames);
+                .select('*', { count: 'exact', head: true })
+                .in('user_name', cleanNames);
 
             if (countError) {
                 console.error("Database error while counting posts:", countError);
                 return ResponseUtil.error("Database error", HTTP_STATUS.INTERNAL_SERVER_ERROR);
             }
 
-            // Get posts with user information using a join
-            const { data: postsWithUsers, error: postsError } = await supabaseService.database
+            // Get posts directly since we now have user_name in posts table
+            const { data: postsData, error: postsError } = await supabaseService.database
                 .from('posts')
-                .select(`
-                    id,
-                    user_id,
-                    text,
-                    image_url,
-                    date,
-                    created_at,
-                    users!inner(
-                        id,
-                        name
-                    )
-                `)
-                .in('users.name', cleanNames)
+                .select('*')
+                .in('user_name', cleanNames)
                 .order('created_at', { ascending: false })
                 .range(offset, offset + limit - 1);
 
@@ -151,29 +151,11 @@ export class PostController {
             }
 
             // Transform the data to match our expected format
-            interface PostWithUserData {
-                id: number;
-                user_id: number;
-                text: string;
-                image_url: string;
-                date: string | null;
-                created_at: string;
-                users: {
-                    id: number;
-                    name: string;
-                }[];
-            }
-
-            const posts: PostWithUser[] = (postsWithUsers || []).map((post: PostWithUserData) => ({
-                id: post.id,
-                user_id: post.user_id,
-                text: post.text,
-                image_url: post.image_url,
-                date: post.date,
-                created_at: post.created_at,
+            const posts: PostWithUser[] = (postsData || []).map((post: Post) => ({
+                ...post,
                 user: {
-                    id: post.users[0].id,
-                    name: post.users[0].name
+                    id: post.user_id,
+                    name: post.user_name
                 }
             }));
 

@@ -19,7 +19,7 @@ Access tokens can be obtained through the login or signup endpoints and are vali
 curl -X POST http://localhost:9999/server/posts/create \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"text": "Hello world!", "image_url": "https://example.com/image.jpg", "date": "2025-07-03T10:30:00.000Z"}'
+  -d '{"type": "mixed", "content": "Hello world!", "caption": "My first post", "image_url": "https://example.com/image.jpg", "date": "2025-07-03T10:30:00.000Z"}'
 ```inutes. Refresh tokens are valid for 7 days.
 
 ---
@@ -151,7 +151,7 @@ Content-Type: application/json
 #### 4. Create Post
 **POST** `/server/posts/create`
 
-Create a new post with text and/or image. At least one of `text` or `image_url` is required.
+Create a new post with content and/or image. At least one of `content` or `image_url` is required.
 
 **Headers:**
 ```
@@ -162,8 +162,10 @@ Content-Type: application/json
 **Request Body:**
 ```json
 {
-  "text": "This is my post content", // Optional
-  "image_url": "https://example.com/image.jpg", // Optional
+  "type": "text", // Required: "text", "image", or "mixed"
+  "content": "This is my post content", // Optional - text content
+  "caption": "Optional caption for the post", // Optional - caption/description
+  "image_url": "https://example.com/image.jpg", // Optional - image URL
   "date": "2025-07-03T10:30:00.000Z" // Optional: ISO string date
 }
 ```
@@ -173,22 +175,27 @@ Content-Type: application/json
 Text only:
 ```json
 {
-  "text": "Hello world!"
+  "type": "text",
+  "content": "Hello world!"
 }
 ```
 
 Image only:
 ```json
 {
-  "image_url": "https://example.com/photo.jpg"
+  "type": "image",
+  "image_url": "https://example.com/photo.jpg",
+  "caption": "Check out this amazing photo!"
 }
 ```
 
-Both text, image and date:
+Mixed content with both text and image:
 ```json
 {
-  "text": "Check out this amazing photo!",
+  "type": "mixed",
+  "content": "Here's what I'm working on today!",
   "image_url": "https://example.com/photo.jpg",
+  "caption": "My latest project",
   "date": "2025-07-03T10:30:00.000Z"
 }
 ```
@@ -200,8 +207,11 @@ Both text, image and date:
   "data": {
     "post": {
       "id": 1,
+      "type": "mixed",
+      "content": "This is my post content",
+      "caption": "Optional caption for the post",
       "user_id": 1,
-      "text": "This is my post content",
+      "user_name": "rama",
       "image_url": "https://example.com/image.jpg",
       "date": "2025-07-03T10:30:00.000Z",
       "created_at": "2025-07-02T16:45:00.000Z"
@@ -211,7 +221,7 @@ Both text, image and date:
 ```
 
 **Error Responses:**
-- `400 Bad Request`: At least one of text or image_url is required
+- `400 Bad Request`: At least one of content or image_url is required / Valid post type is required (text, image, or mixed)
 - `401 Unauthorized`: Authorization token is required / Invalid or expired token
 - `500 Internal Server Error`: Failed to create post
 
@@ -235,17 +245,23 @@ Authorization: Bearer <access_token>
     "posts": [
       {
         "id": 2,
+        "type": "text",
+        "content": "My latest post",
+        "caption": null,
         "user_id": 1,
-        "text": "My latest post",
-        "image_url": "https://example.com/latest.jpg",
+        "user_name": "rama",
+        "image_url": null,
         "date": "2025-07-03T10:30:00.000Z",
         "created_at": "2025-07-02T16:45:00.000Z"
       },
       {
         "id": 1,
+        "type": "mixed",
+        "content": "My first post",
+        "caption": "First post ever!",
         "user_id": 1,
-        "text": "My first post",
-        "image_url": null,
+        "user_name": "rama",
+        "image_url": "https://example.com/photo.jpg",
         "date": "2025-07-02T15:20:00.000Z",
         "created_at": "2025-07-02T16:30:00.000Z"
       }
@@ -306,8 +322,11 @@ Search with pagination:
     "posts": [
       {
         "id": 5,
+        "type": "image",
+        "content": null,
+        "caption": "Latest post from Riya",
         "user_id": 2,
-        "text": "Latest post from Riya",
+        "user_name": "riya",
         "image_url": "https://example.com/riya-latest.jpg",
         "date": "2025-07-03T10:30:00.000Z",
         "created_at": "2025-07-02T17:00:00.000Z",
@@ -318,8 +337,11 @@ Search with pagination:
       },
       {
         "id": 3,
+        "type": "text",
+        "content": "Post from Rama",
+        "caption": null,
         "user_id": 1,
-        "text": "Post from Rama",
+        "user_name": "rama",
         "image_url": null,
         "date": "2025-07-02T15:20:00.000Z",
         "created_at": "2025-07-02T16:50:00.000Z",
@@ -364,8 +386,11 @@ Search with pagination:
 ```typescript
 {
   id: number;
+  type: 'text' | 'image' | 'mixed';
+  content: string | null;
+  caption: string | null;
   user_id: number;
-  text: string | null;
+  user_name: string;
   image_url: string | null;
   date: string | null; // ISO 8601 datetime - user-specified date
   created_at: string; // ISO 8601 datetime - actual creation time
@@ -376,6 +401,20 @@ Search with pagination:
 ```typescript
 {
   id: number;
+  type: 'text' | 'image' | 'mixed';
+  content: string | null;
+  caption: string | null;
+  user_id: number;
+  user_name: string;
+  image_url: string | null;
+  date: string | null; // ISO 8601 datetime - user-specified date
+  created_at: string; // ISO 8601 datetime - actual creation time
+  user: {
+    id: number;
+    name: string;
+  };
+}
+```
   user_id: number;
   text: string | null;
   image_url: string | null;
@@ -445,7 +484,8 @@ All error responses follow this format:
 ## Rate Limiting & Constraints
 
 - **Search pagination**: Maximum 50 posts per page
-- **Post content**: At least one of text or image_url must be provided
+- **Post content**: At least one of content or image_url must be provided
+- **Post type**: Must be 'text', 'image', or 'mixed'
 - **User names**: Case-sensitive matching
 - **Token security**: Passwords are included in JWT payload for enhanced security
 
@@ -467,7 +507,7 @@ curl -X POST http://localhost:9999/server/auth/signup \
 curl -X POST http://localhost:9999/server/posts/create \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"text": "Hello world!", "image_url": "https://example.com/image.jpg"}'
+  -d '{"type": "mixed", "content": "Hello world!", "caption": "My first post", "image_url": "https://example.com/image.jpg"}'
 ```
 
 3. **Search posts:**
