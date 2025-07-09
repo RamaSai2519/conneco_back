@@ -1,0 +1,3 @@
+[submodule "amplify/backend/function/connecoback/src/shared"]
+	path = amplify/backend/function/connecoback/src/shared
+	url = https://github.com/RamaSai2519/shared
