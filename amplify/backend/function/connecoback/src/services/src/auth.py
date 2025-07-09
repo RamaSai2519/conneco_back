@@ -62,7 +62,7 @@ class AuthSignupService(Resource):
             access_token = create_access_token(identity=str(user['_id']))
             refresh_token = create_refresh_token(identity=str(user['_id']))
 
-            value = Output(Common.jsonify({
+            value = Output(**Common.jsonify({
                 'success': True,
                 'data': {
                     'access_token': access_token,

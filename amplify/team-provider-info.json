@@ -36,7 +36,7 @@
       "function": {
         "connecoback": {
           "deploymentBucketName": "amplify-connecoback-main-39e3b-deployment",
-          "s3Key": "amplify-builds/connecoback-54704350426a35617039-build.zip"
+          "s3Key": "amplify-builds/connecoback-56497a725142586c7675-build.zip"
         }
       },
       "api": {
