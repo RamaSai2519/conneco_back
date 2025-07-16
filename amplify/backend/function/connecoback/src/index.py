@@ -25,7 +25,7 @@ api.add_resource(AuthRefreshService, '/con/refresh')
 
 # Posts Routes
 api.add_resource(PostCreateService, '/con/create')
-api.add_resource(PostUserPostsService, '/con/user')
+api.add_resource(PostUserPostsService, '/con/posts')
 api.add_resource(PostSearchService, '/con/search')
 
 
