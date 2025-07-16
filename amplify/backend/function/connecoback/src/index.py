@@ -6,8 +6,6 @@ from services.controller import *
 from flask_restful import Api
 from flask_cors import CORS
 import awsgi
-import sys
-import os
 
 
 app = Flask(__name__)
