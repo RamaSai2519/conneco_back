@@ -26,7 +26,7 @@ class AuthLoginService(Resource):
             access_token = create_access_token(identity=user['_id'])
             refresh_token = create_refresh_token(identity=user['_id'])
 
-            return {
+            return Output(**{
                 'success': True,
                 'data': {
                     'tokens': {
@@ -39,11 +39,14 @@ class AuthLoginService(Resource):
                         'created_at': user.get('created_at')
                     }
                 }
-            }, 200
+            }).to_dict(), 200
 
         except Exception as e:
             traceback.print_exc()
-            return {'success': False, 'error': str(e)}, 500
+            return Output(**{
+                'success': False,
+                'error': str(e)
+            }).to_dict(), 500
 
 
 class AuthSignupService(Resource):
@@ -57,15 +60,12 @@ class AuthSignupService(Resource):
             if not name or not password or get_user_by_password(password):
                 return {'success': False, 'error': 'Name and password are required'}, 400
 
-            # Create user
             user = create_user(name, password)
 
-            # Create tokens
             access_token = create_access_token(identity=str(user['_id']))
             refresh_token = create_refresh_token(identity=str(user['_id']))
 
-            value = Output(**Common.jsonify({
-                'success': True,
+            value = Output(**{
                 'data': {
                     'access_token': access_token,
                     'refresh_token': refresh_token,
@@ -75,12 +75,14 @@ class AuthSignupService(Resource):
                         'created_at': user.get('created_at')
                     }
                 }
-            })).to_dict(), 201
-            print(value)
+            }).to_dict(), 201
             return value
 
         except Exception as e:
-            return {'success': False, 'error': str(e)}, 500
+            return Output(**{
+                'success': False,
+                'error': str(e)
+            }).to_dict(), 500
 
 
 class AuthRefreshService(Resource):
@@ -97,12 +99,15 @@ class AuthRefreshService(Resource):
             # Create new access token
             access_token = create_access_token(identity=current_user_id)
 
-            return {
+            return Output(**{
                 'success': True,
                 'data': {
                     'access_token': access_token
                 }
-            }, 200
+            }).to_dict(), 200
 
         except Exception as e:
-            return {'success': False, 'error': str(e)}, 500
+            return Output(**{
+                'success': False,
+                'error': str(e)
+            }).to_dict(), 500
