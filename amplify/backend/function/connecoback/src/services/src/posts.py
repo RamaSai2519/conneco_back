@@ -28,7 +28,6 @@ class PostCreateService(Resource):
             ist_dt = datetime.strptime(date, "%Y-%m-%dT%H:%M")
             utc_dt = ist_dt - timedelta(hours=5, minutes=30)
             date = utc_dt
-            
 
             if not post_type:
                 return {'success': False, 'error': 'Post type is required'}, 400
@@ -112,61 +111,3 @@ class PostUserPostsService(Resource):
                 'success': False,
                 'error': str(e)
             }).to_dict(), 500
-
-
-class PostSearchService(Resource):
-    @jwt_required()
-    def post(self):
-        """Search posts by user names."""
-        try:
-            data = request.get_json()
-            names = data.get('names', [])
-            page = data.get('page', 1)
-            limit = data.get('limit', 10)
-
-            if not names:
-                return {'success': False, 'error': 'Names are required'}, 400
-
-            # Calculate offset
-            offset = (page - 1) * limit
-
-            # Get posts
-            posts_collection = get_posts_collection()
-
-            # Get total count
-            total_count = posts_collection.count_documents(
-                {'user_name': {'$in': names}}
-            )
-
-            # Get posts with pagination
-            posts_cursor = posts_collection.find(
-                {'user_name': {'$in': names}}
-            ).sort('created_at', -1).skip(offset).limit(limit)
-
-            posts = []
-            for post in posts_cursor:
-                posts.append({
-                    'id': str(post['_id']),
-                    'type': post['type'],
-                    'content': post.get('content'),
-                    'caption': post.get('caption'),
-                    'user_id': str(post['user_id']),
-                    'user_name': post['user_name'],
-                    'image_url': post.get('image_url'),
-                    'date': post.get('date'),
-                    'created_at': post['created_at'],
-                    'updated_at': post.get('updated_at')
-                })
-
-            return {
-                'success': True,
-                'data': {
-                    'posts': posts,
-                    'total_count': total_count,
-                    'page': page,
-                    'limit': limit
-                }
-            }, 200
-
-        except Exception as e:
-            return {'success': False, 'error': str(e)}, 500
