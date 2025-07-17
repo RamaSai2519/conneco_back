@@ -27,7 +27,7 @@ api.add_resource(AuthRefreshService, '/con/refresh')
 api.add_resource(PostCreateService, '/con/create')
 api.add_resource(PostUserPostsService, '/con/posts')
 api.add_resource(PostSearchService, '/con/search')
-
+api.add_resource(UploadService, '/con/upload')
 
 @app.after_request
 def handle_after_request(response: Response) -> Response:

@@ -3,9 +3,9 @@ from bson import ObjectId
 from models.auth import Output
 from flask_restful import Resource
 from shared.models.common import Common
+from datetime import datetime, timedelta
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from shared.db.users import get_posts_collection, get_user_by_id
-from datetime import datetime, timedelta
 
 
 class PostCreateService(Resource):
