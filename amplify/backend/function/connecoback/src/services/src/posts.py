@@ -25,7 +25,7 @@ class PostCreateService(Resource):
             caption = data.get('caption')
             image_url = data.get('image_url')
             date = data.get('date')
-            ist_dt = datetime.strptime(date, "%Y-%m-%dT%H:%M")
+            ist_dt = datetime.strptime(date, "%Y-%m-%d")
             utc_dt = ist_dt - timedelta(hours=5, minutes=30)
             date = utc_dt
 
