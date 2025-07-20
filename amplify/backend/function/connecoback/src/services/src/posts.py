@@ -86,14 +86,8 @@ class PostUserPostsService(Resource):
             sort_order = -1 if sort_order == 'desc' else 1
             posts_cursor = posts_collection.find(query)
             posts_cursor = posts_cursor.sort(sort_field, sort_order)
-            page = 1
-            limit = 10
-            if 'page' and 'limit' in request.args:
-                try:
-                    page = int(request.args['page'])
-                    limit = int(request.args['limit'])
-                except:
-                    pass
+            page = int(request.args['page'])
+            limit = int(request.args['size'])    
             posts_cursor = Common.paginate_cursor(posts_cursor, page, limit)
             posts = Common.jsonify(list(posts_cursor))
             total = posts_collection.count_documents(query)
