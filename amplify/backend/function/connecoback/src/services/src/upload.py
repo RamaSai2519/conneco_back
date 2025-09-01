@@ -4,11 +4,9 @@ from flask import request
 from models.auth import Output
 from flask_restful import Resource
 from shared.configs import CONFIG as config
-from flask_jwt_extended import jwt_required
 
 
 class UploadService(Resource):
-    @jwt_required()
     def post(self):
         """Generate a presigned URL for file upload."""
         try:
