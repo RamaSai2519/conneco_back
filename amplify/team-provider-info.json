@@ -1,4 +1,28 @@
 {
+  "main": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-connecoback-main-39e3b-authRole",
+      "UnauthRoleArn": "arn:aws:iam::135808951082:role/amplify-connecoback-main-39e3b-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::135808951082:role/amplify-connecoback-main-39e3b-authRole",
+      "Region": "ap-south-1",
+      "DeploymentBucketName": "amplify-connecoback-main-39e3b-deployment",
+      "UnauthRoleName": "amplify-connecoback-main-39e3b-unauthRole",
+      "StackName": "amplify-connecoback-main-39e3b",
+      "StackId": "arn:aws:cloudformation:ap-south-1:135808951082:stack/amplify-connecoback-main-39e3b/18943250-5ca5-11f0-92a6-024b0d2d2885",
+      "AmplifyAppId": "db7dn212vifn6"
+    },
+    "categories": {
+      "function": {
+        "connecoback": {
+          "deploymentBucketName": "amplify-connecoback-main-39e3b-deployment",
+          "s3Key": "amplify-builds/connecoback-6b5330424842516e4b2f-build.zip"
+        }
+      },
+      "api": {
+        "apicon": {}
+      }
+    }
+  },
   "dev": {
     "awscloudformation": {
       "AuthRoleName": "amplify-connecoback-dev-8a489-authRole",
@@ -17,30 +41,6 @@
           "deploymentBucketName": "amplify-connecoback-dev-8a489-deployment",
           "s3Key": "amplify-builds/connecoback-3143454b437678347935-build.zip"
         }
-      }
-    }
-  },
-  "main": {
-    "awscloudformation": {
-      "AuthRoleName": "amplify-connecoback-main-39e3b-authRole",
-      "UnauthRoleArn": "arn:aws:iam::135808951082:role/amplify-connecoback-main-39e3b-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::135808951082:role/amplify-connecoback-main-39e3b-authRole",
-      "Region": "ap-south-1",
-      "DeploymentBucketName": "amplify-connecoback-main-39e3b-deployment",
-      "UnauthRoleName": "amplify-connecoback-main-39e3b-unauthRole",
-      "StackName": "amplify-connecoback-main-39e3b",
-      "StackId": "arn:aws:cloudformation:ap-south-1:135808951082:stack/amplify-connecoback-main-39e3b/18943250-5ca5-11f0-92a6-024b0d2d2885",
-      "AmplifyAppId": "db7dn212vifn6"
-    },
-    "categories": {
-      "function": {
-        "connecoback": {
-          "deploymentBucketName": "amplify-connecoback-main-39e3b-deployment",
-          "s3Key": "amplify-builds/connecoback-342b727176336d395274-build.zip"
-        }
-      },
-      "api": {
-        "apicon": {}
       }
     }
   }
