@@ -28,6 +28,10 @@ api.add_resource(PostCreateService, '/con/create')
 api.add_resource(PostUserPostsService, '/con/posts')
 api.add_resource(UploadService, '/con/upload')
 
+# Schools Routes
+api.add_resource(SchoolsService, '/con/schools')
+
+
 @app.after_request
 def handle_after_request(response: Response) -> Response:
     return Handler(response).handle_after_request()
