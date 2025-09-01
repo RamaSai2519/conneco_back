@@ -17,7 +17,6 @@ flask = "*"
 mangum = "*"
 aws-wsgi = "*"
 pymysql = "*"
-cryptography = "*"
 
 [requires]
 python_version = "3.13"
