@@ -17,6 +17,7 @@ flask = "*"
 mangum = "*"
 aws-wsgi = "*"
 pymysql = "*"
+openai = "*"
 
 [requires]
 python_version = "3.13"
