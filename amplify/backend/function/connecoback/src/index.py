@@ -1,3 +1,4 @@
+
 from shared.uniservices.after_request import Handler
 from shared.configs import CONFIG as config
 from flask_jwt_extended import JWTManager
@@ -30,6 +31,9 @@ api.add_resource(UploadService, '/con/upload')
 
 # Schools Routes
 api.add_resource(SchoolsService, '/con/schools')
+
+# Meals Routes
+api.add_resource(Meals, '/con/meals')
 
 
 @app.after_request
