@@ -18,6 +18,7 @@ mangum = "*"
 aws-wsgi = "*"
 pymysql = "*"
 openai = "*"
+bcrypt = "*"
 
 [requires]
 python_version = "3.13"
