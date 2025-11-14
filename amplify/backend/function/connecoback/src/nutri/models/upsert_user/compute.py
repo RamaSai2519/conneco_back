@@ -1,8 +1,8 @@
-import bcrypt
 import dataclasses
 from bson import ObjectId
 from datetime import datetime
 from typing import Union, Tuple
+from passlib.hash import pbkdf2_sha256
 from shared.models.common import Common
 from nutri.db.users import get_user_collection
 from nutri.models.interfaces import User as Input, Output
@@ -53,9 +53,8 @@ class Compute:
                 user_data[field] = ObjectId(user_data[field])
 
         if self.input.password:
-            hashed_pass = bcrypt.hashpw(
-                self.input.password.encode("utf-8"), bcrypt.gensalt())
-            user_data['password'] = hashed_pass.decode("utf-8")
+            hashed_pass = pbkdf2_sha256.hash(self.input.password)
+            user_data['password'] = hashed_pass
 
         user_data = Common.filter_none_values(user_data)
         return user_data

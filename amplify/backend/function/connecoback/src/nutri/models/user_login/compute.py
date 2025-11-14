@@ -1,5 +1,5 @@
-import bcrypt
 from typing import Union
+from passlib.hash import pbkdf2_sha256
 from shared.models.common import Common
 from nutri.db.users import get_user_collection
 from shared.models.constants import OutputStatus
@@ -33,7 +33,7 @@ class Compute:
                 status=OutputStatus.FAILURE
             )
 
-        if not bcrypt.checkpw(self.input.password.encode("utf-8"), user['password'].encode("utf-8")):
+        if not pbkdf2_sha256.verify(self.input.password, user['password']):
             return Output(
                 msg="Invalid credentials",
                 status=OutputStatus.FAILURE

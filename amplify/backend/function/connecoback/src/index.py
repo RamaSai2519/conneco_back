@@ -34,7 +34,7 @@ api.add_resource(UploadService, '/con/upload')
 api.add_resource(SchoolsService, '/con/schools')
 
 # Nutri Routes
-api.add_resource(Meals, '/con/meals')
+api.add_resource(Meals, '/con/nmeals')
 api.add_resource(UserService, '/con/nuser')
 api.add_resource(UserLoginService, '/con/nlogin')
 
