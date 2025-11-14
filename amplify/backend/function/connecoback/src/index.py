@@ -2,6 +2,7 @@
 from shared.uniservices.after_request import Handler
 from shared.configs import CONFIG as config
 from flask_jwt_extended import JWTManager
+from nutri.services.controller import *
 from flask import Flask, Response
 from services.controller import *
 from flask_restful import Api
@@ -32,8 +33,10 @@ api.add_resource(UploadService, '/con/upload')
 # Schools Routes
 api.add_resource(SchoolsService, '/con/schools')
 
-# Meals Routes
+# Nutri Routes
 api.add_resource(Meals, '/con/meals')
+api.add_resource(UserService, '/con/nuser')
+api.add_resource(UserLoginService, '/con/nlogin')
 
 
 @app.after_request
@@ -47,4 +50,4 @@ def handler(event, context) -> dict:
 
 
 if __name__ == '__main__':
-    app.run(port=8080, debug=True)
+    app.run(host='0.0.0.0', port=8080)
