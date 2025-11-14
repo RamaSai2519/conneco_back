@@ -41,7 +41,4 @@ class Validator:
         if self.input.name is None or self.input.name.strip() == "":
             return False, "Name is required"
 
-        if self.input.password is None or self.input.password.strip() == "":
-            return False, "Password is required"
-
         return True, ""

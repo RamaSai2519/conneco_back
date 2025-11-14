@@ -15,7 +15,7 @@ class UpsertUser:
 
         if not valid_input:
             return Output(
-                msg={error_message},
+                msg=error_message,
                 status=OutputStatus.FAILURE
             )
 
@@ -24,8 +24,7 @@ class UpsertUser:
         except Exception as e:
             print(traceback.format_exc())
             output = Output(
-                data={},
-                msg=f"{e}",
+                msg=e,
                 status=OutputStatus.FAILURE,
             )
 

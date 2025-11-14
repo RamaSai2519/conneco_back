@@ -14,14 +14,13 @@ class UserService(Resource):
         input = User(**input)
         output = UpsertUser(input).process()
         output = dataclasses.asdict(output)
-
+    
         return output
 
 
 class UserLoginService(Resource):
 
     def post(self) -> dict:
-        print( "Login request received" )
         input = json.loads(request.get_data())
         input = LoginInput(**input)
         output = UserLogin(input).process()

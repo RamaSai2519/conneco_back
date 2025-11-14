@@ -52,7 +52,7 @@ class Compute:
             if user_data.get(field) and not isinstance(user_data[field], ObjectId):
                 user_data[field] = ObjectId(user_data[field])
 
-        if 'password' in user_data:
+        if self.input.password:
             hashed_pass = bcrypt.hashpw(
                 self.input.password.encode("utf-8"), bcrypt.gensalt())
             user_data['password'] = hashed_pass.decode("utf-8")
@@ -80,6 +80,9 @@ class Compute:
         user = self.input
         user_data = dataclasses.asdict(user)
         prev_user = self.validate_phone()
+        if not prev_user:
+            if not self.input.password or self.input.password.strip() == "":
+                return Output(msg="Password is required")
 
         user_data = self.prep_data(user_data, prev_user)
         if prev_user:
